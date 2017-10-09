@@ -1,0 +1,11 @@
+<!--submission-successful.html-->
+
+{{ template "header.html" .}}
+
+<div>
+  <strong>The party was submitted successfully.</strong>
+
+  <a href="/party/view/{{.payload.ID}}">{{.payload.Title}}</a>
+</div>
+
+{{ template "footer.html" .}}

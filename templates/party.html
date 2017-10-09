@@ -1,0 +1,13 @@
+<!--party.html-->
+
+<!--Embed the header.html at this location-->
+{{ template "header.html" .}}
+
+<!--Display the title of the party-->
+<h1>{{.payload.Title}}</h1>
+
+<!--Display the content of the party-->
+<p>{{.payload.Content}}</p>
+
+<!--Embed the footer.html at this location-->
+{{ template "footer.html" .}}

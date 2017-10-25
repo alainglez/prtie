@@ -6,7 +6,7 @@ import "testing"
 
 // Test the function that fetches all parties
 func TestGetAllparties(t *testing.T) {
-	alist := getAllparties()
+	alist := getAllParties()
 
 	// Check that the length of the list of parties returned is the
 	// same as the length of the global variable holding the list
@@ -38,16 +38,37 @@ func TestGetPartyByID(t *testing.T) {
 // Test the createNewParty by creating a new party and checking that
 // party list contains the new party
 func TestCreateNewParty(t *testing.T) {
-	originalLength := len(getAllparties())
+	originalLength := len(getAllParties())
 
 	a, err := createNewParty("New test party", "New test content")
 
-	allParty := getAllparties()
+	allParty := getAllParties()
 	newLength := len(allParty)
 
 	if err != nil || newLength != originalLength+1 ||
 		a.Title != "New test party" || a.Content != "New test content" {
 
 		t.Fail()
+	}
+}
+
+// Test the function that fetches all parties
+func TestGetAllAmenities(t *testing.T) {
+	alist := getAllAmenities()
+
+	// Check that the length of the list of amenities returned is the
+	// same as the length of the global variable holding the list
+	if len(alist) != len(amenityList) {
+		t.Fail()
+	}
+
+	// Check that each member is identical
+	for i, v := range alist {
+		if v.ID != amenityList[i].ID ||
+			v.Name != amenityList[i].Name {
+
+			t.Fail()
+			break
+		}
 	}
 }

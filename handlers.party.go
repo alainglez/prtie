@@ -10,7 +10,8 @@ import (
 )
 
 func showIndexPage(c *gin.Context) {
-	parties := getAllparties()
+	parties := getAllParties()
+
 	loggedInInterface, _ := c.Get("is_logged_in")
 	is_logged_in := loggedInInterface.(bool)
 

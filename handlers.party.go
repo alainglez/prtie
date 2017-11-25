@@ -26,7 +26,7 @@ func getParty(c *gin.Context) {
 	// Check if the party ID is valid
 	if partyID, err := strconv.Atoi(c.Param("party_id")); err == nil {
 		// Chekc if party exists
-		if party, err := getPartyByID(partyID); err == nil {
+		if party, err := getPartyByID(int64(partyID)); err == nil {
 			loggedInInterface, _ := c.Get("is_logged_in")
 			is_logged_in := loggedInInterface.(bool)
 

@@ -52,6 +52,7 @@ func TestCreateNewParty(t *testing.T) {
 	}
 }
 
+/*
 // Test the function that fetches all parties
 func TestGetAllAmenities(t *testing.T) {
 	alist := getAllAmenities()
@@ -72,3 +73,4 @@ func TestGetAllAmenities(t *testing.T) {
 		}
 	}
 }
+*/

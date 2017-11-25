@@ -3,15 +3,21 @@
 package main
 
 import (
-	"database/sql"
+	//"database/sql"
+	"context"
 	"errors"
+	"io"
 	"log"
+
+	"cloud.google.com/go/spanner"
+	database "cloud.google.com/go/spanner/admin/database/apiv1"
+	"google.golang.org/api/iterator"
 
 	_ "github.com/lib/pq"
 )
 
 type party struct {
-	ID      int    `json:"id"`
+	ID      int64  `json:"id"`
 	Title   string `json:"title"`
 	Content string `json:"content"`
 }
@@ -28,6 +34,62 @@ var partyList = []party{
 
 var amenityList = make([]amenity, 1)
 
+func getPartiesByUserId(ctx context.Context, w io.Writer, client *spanner.Client, userId int64) error {
+	ro := client.ReadOnlyTransaction()
+	defer ro.Close()
+	stmt := spanner.Statement{
+		SQL: `SELECT PartyId, PartyTitle, PartyContent
+			FROM Parties
+			WHERE UserId = @userId`,
+		Params: map[string]interface{}{
+			"userId": userId,
+		},
+	}
+	//clear the partyList slice to populate with new results
+	partyList = partyList[:0]
+	iter := ro.Query(ctx, stmt)
+	defer iter.Stop()
+	for {
+		row, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return err
+		}
+		var partyID int64
+		var partyTitle, partyContent string
+		if err := row.Columns(&partyID, &partyTitle, &partyContent); err != nil {
+			return err
+		}
+		//fmt.Fprintf(w, "%d %d %s\n", partyId, partyTitle, partyContent)
+		//partyList[i] = party{ID: &partyID, Title: &partyTitle, Content: &partyContent}
+
+		a := party{ID: partyID, Title: partyTitle, Content: partyContent}
+		partyList = append(partyList, a)
+
+		//partyList[i].ID = partyID
+		//partyList[i].Title = partyTitle
+		//partyList[i].Content = partyContent
+	}
+	return nil
+}
+
+func createClients(ctx context.Context, db string) (*database.DatabaseAdminClient, *spanner.Client) {
+	adminClient, err := database.NewDatabaseAdminClient(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	dataClient, err := spanner.NewClient(ctx, db)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return adminClient, dataClient
+}
+
+/*
 func createTables() bool {
 	// Connect to the "party" database.
 	db, err := sql.Open("postgres", "postgresql://alain@localhost:26257/party?sslmode=disable")
@@ -62,7 +124,7 @@ func createTables() bool {
 
 	return true
 }
-
+*/
 // Return a list of all active parties - from yesterday and into the future
 func getAllParties() []party {
 	/*
@@ -89,8 +151,8 @@ func getAllParties() []party {
 	return partyList
 }
 
-// Return an party by ID
-func getPartyByID(id int) (*party, error) {
+// Return a party by ID
+func getPartyByID(id int64) (*party, error) {
 	for _, a := range partyList {
 		if a.ID == id {
 			return &a, nil
@@ -100,13 +162,14 @@ func getPartyByID(id int) (*party, error) {
 }
 
 func createNewParty(title, content string) (*party, error) {
-	a := party{ID: len(partyList) + 1, Title: title, Content: content}
+	a := party{ID: int64(len(partyList) + 1), Title: title, Content: content}
 
 	partyList = append(partyList, a)
 
 	return &a, nil
 }
 
+/*
 // Return a list of all active parties - from yesterday and into the future
 func getAllAmenities() []amenity {
 	// Connect to the "party" database.
@@ -137,3 +200,4 @@ func getAllAmenities() []amenity {
 
 	return amenityList
 }
+*/

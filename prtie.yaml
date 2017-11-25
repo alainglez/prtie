@@ -1,0 +1,46 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: prtie
+  name: prtie
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: prtie
+  template:
+    metadata:
+      labels:
+        app: prtie
+    spec:
+      containers:
+      - image: alainglez/prtie-linux-amd64:1
+        name: prtie
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: prtie
+  name: prtie
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: prtie
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: prtie
+  labels:
+    app: prtie
+spec:
+  backend:
+    serviceName: prtie
+    servicePort: 80
